@@ -3,8 +3,6 @@ import './App.css';
 import { createGlobalStyle } from 'styled-components';
 import MainTemplate from './components/MainTemplate';
 import Head from './components/Head';
-import FixedList from './components/FixedList';
-import { FixedProvider } from './components/Context';
 
 
 
@@ -45,21 +43,86 @@ function App() {
     }).then(() => fetchData());
   };
 
+  const data = [
+    { id: 1, label: 'bat', checked: false },
+    { id: 2, label: 'cmd', checked: false },
+    { id: 3, label: 'com', checked: false },
+    { id: 4, label: 'cpl', checked: false },
+    { id: 5, label: 'exe', checked: false },
+    { id: 6, label: 'scr', checked: false },
+    { id: 7, label: 'js', checked: false },
+  ];
+
+  function MyComponent({ fileLimit }) {
+    const [items, setItems] = useState(data);
+  
+    useEffect(() => {
+      if (fileLimit) {
+        const updatedItems = items.map((item) => {
+          const fileLimitItem = fileLimit.find((limit) => limit.name === item.label && limit.type === 'FIXED');
+          if (fileLimitItem) {
+            return { ...item, checked: true, id: fileLimitItem.id };
+          } else {
+            return item;
+          }
+        });
+        setItems(updatedItems);
+      }
+    }, [fileLimit]);
+  
+    return items;
+  }
+
+  const onCheckboxClickHandler = (e) => {
+    const id = e.target.id;
+    const isChecked = e.target.checked;
+  
+    // 체크박스를 체크할 경우, 서버에 POST 요청 보내기
+    if (isChecked) {
+      fetch('http://localhost:8080/fileLimit', { 
+        method: 'POST',
+        body: id
+      })
+        .then(() => fetchData());
+    }
+    // 체크박스를 체크해제할 경우, 서버에 DELETE 요청 보내기
+    else {
+      const limitId = fileLimit.find((limit) => limit.name === id)?.id;
+      if (limitId) {
+        fetch(`http://localhost:8080/fileLimit/${limitId}`, {
+          method: 'DELETE'
+        })
+          .then(() => fetchData());
+      }
+    }
+  };
+
   return (
     <>
       <GlobalStyle />
       <MainTemplate>
         <Head />
         <h3 style={{paddingLeft: 20}}>고정 확장자</h3>
-        <FixedProvider>
+        {/* <FixedProvider>
           <FixedList />
-        </FixedProvider>
+        </FixedProvider> */}
+        <div style={{ display: 'flex', flexDirection: 'row', paddingLeft: 20, paddingBottom: 20, borderBottom: '1px solid #e9ecef'}}>
+          {MyComponent({ fileLimit }).map((item) => (
+            <div key={item.id} style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', paddingLeft: 5, alignItems: 'center'}}>
+              <input type='checkbox' id={item.label} checked={fileLimit?.some((limit) => limit.name === item.label)} onChange={onCheckboxClickHandler} style={{ marginRight: 5 }}/>
+              <div style={{ display: 'flex' }}>{item.label}</div>
+            </div>
+          ))}
+        </div>
+        
+
         <h3 style={{paddingLeft: 20}}>선택 확장자</h3>
-        <form onSubmit={onSubmitHandler}>
-          <input name='name'/>
+        <form onSubmit={onSubmitHandler} style={{paddingLeft: 20}}>
+          <input name='name' maxLength={20} />
           <input type='submit' value='추가'/>
+          <div style={{paddingTop: 10}}>{fileLimit?.filter((limit) => limit.type === 'CUSTOM').length}/200</div>
         </form>
-        <div style={{ display: 'grid',gridTemplateColumns: 'repeat(5, 1fr)'}}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', paddingLeft: 20, paddingTop: 10}}>
           {fileLimit?.filter((limit) => limit.type === 'CUSTOM').map((limit) => (
             <div key={limit.id} 
               style={{
@@ -68,10 +131,10 @@ function App() {
                 border: '1px solid black',
                 padding: '5px',
                 margin: '2px',
-                borderRadius: '5px',
+                borderRadius: '4px',
                 }}
               >
-              <div>{limit.name}</div>
+              <div style={{paddingRight: 5}}>{limit.name}</div>
               <button onClick={onClickHandler} id={limit.id}>X</button>
             </div>
             
