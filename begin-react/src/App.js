@@ -16,7 +16,7 @@ function App() {
   const [fileLimit, setFileLimit] = useState(null);
 
   const fetchData = () => {
-    fetch('http://localhost:8080/fileLimit')
+    fetch('http://3.36.200.203:8080/fileLimit')
       .then((Response) => Response.json())
       .then((data) => setFileLimit(data));
   };
@@ -28,7 +28,7 @@ function App() {
   const onSubmitHandler = (e) => {
     e.preventDefault();
     const name = e.target.name.value;
-    fetch('http://localhost:8080/fileLimit', { 
+    fetch('http://3.36.200.203:8080/fileLimit', { 
       method: 'POST',
       body: name,
     }).then(() => fetchData());
@@ -38,7 +38,7 @@ function App() {
     e.preventDefault();
     const id = e.target.id;
     console.log(id);
-    fetch(`http://localhost:8080/fileLimit/${id}`, {
+    fetch(`http://3.36.200.203:8080/fileLimit/${id}`, {
       method: 'DELETE'
     }).then(() => fetchData());
   };
@@ -79,7 +79,7 @@ function App() {
   
     // 체크박스를 체크할 경우, 서버에 POST 요청 보내기
     if (isChecked) {
-      fetch('http://localhost:8080/fileLimit', { 
+      fetch('http://3.36.200.203:8080/fileLimit', { 
         method: 'POST',
         body: id
       })
@@ -89,7 +89,7 @@ function App() {
     else {
       const limitId = fileLimit.find((limit) => limit.name === id)?.id;
       if (limitId) {
-        fetch(`http://localhost:8080/fileLimit/${limitId}`, {
+        fetch(`http://3.36.200.203:8080/fileLimit/${limitId}`, {
           method: 'DELETE'
         })
           .then(() => fetchData());
