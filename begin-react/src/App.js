@@ -118,9 +118,9 @@ function App() {
 
         <h3 style={{paddingLeft: 20}}>선택 확장자</h3>
         <form onSubmit={onSubmitHandler} style={{paddingLeft: 20}}>
-          <input name='name' maxLength={20} />
+          <input name='name' maxLength={20} disabled={fileLimit?.filter((limit) => limit.type === 'CUSTOM').length >= 201}/>
           <input type='submit' value='추가'/>
-          <div style={{paddingTop: 10}}>{fileLimit?.filter((limit) => limit.type === 'CUSTOM').length}/200</div>
+          <div style={{paddingTop: 10, color: fileLimit?.filter((limit) => limit.type === 'CUSTOM').length === 200 ? 'red' : 'inherit'}}>{fileLimit?.filter((limit) => limit.type === 'CUSTOM').length}/200</div>
         </form>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', paddingLeft: 20, paddingTop: 10}}>
           {fileLimit?.filter((limit) => limit.type === 'CUSTOM').map((limit) => (
